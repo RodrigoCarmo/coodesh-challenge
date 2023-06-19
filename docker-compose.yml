@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14.1
+    container_name: teddy_open_db
+    hostname: teddy_open_db
+    env_file:
+    - .env
+    volumes:
+      - pgdata:/var/lib/postgressql/data
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_HOST=${HOST_PG}
+      - POSTGRES_USER=${USERNAME_PG}
+      - POSTGRES_PASSWORD=${PASSWORD_PG}
+      - POSTGRES_DB=${DATABASE_PG}
+    networks:
+      - teddyOpen
+  nestjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teddy_open_api
+    hostname: teddy_open_api
+    volumes:
+      - .:/usr/app/teddyOpen
+    command: npm run start:dev
+    ports: 
+      - '9900:9900'
+      - '3001:3001'
+    depends_on:
+      - postgres
+    networks:
+      - teddyOpen
+
+
+volumes:
+  pgdata:  
+
+networks:
+  teddyOpen:
+    driver: bridge
+
+    
