@@ -1,5 +1,7 @@
 import { Controller, Get, HttpCode, Param } from "@nestjs/common";
 import { ProductsService } from "../services/product.service";
+import { ProductModel } from "src/domain/models/product.model";
+import { GetByCodeDto } from "../dto/products.dto";
 
 @Controller("products")
 export class ProductsController {
@@ -7,7 +9,7 @@ export class ProductsController {
 
   @Get(":code")
   @HttpCode(200)
-  async getBycode(@Param() code: number): Promise<any> {
-    return this.productsService.getBycode(code);
+  async getBycode(@Param() getByCodeDto: GetByCodeDto): Promise<ProductModel> {
+    return this.productsService.getBycode(getByCodeDto.code);
   }
 }
