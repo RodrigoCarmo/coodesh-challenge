@@ -11,16 +11,16 @@ export class ProductsRepository implements ProductsRepositoryInterface {
     @InjectRepository(ProductEntity)
     private readonly productsRepository: BaseRepository<ProductEntity>
   ) {}
-  updateProductsDatabase(products: ProductModel[]): Promise<void> {
-    throw new Error("Method not implemented.");
+  async updateProductsDatabase(product: ProductModel): Promise<void> {
+    await this.productsRepository.update(product.code, product);
   }
-  deleteProduct(code: number): Promise<void> {
-    throw new Error("Method not implemented.");
+  async deleteProduct(code: number): Promise<void> {
+    await this.productsRepository.delete(code);
   }
   getProductByCode(code: number): Promise<ProductModel> {
-    throw new Error("Method not implemented.");
+    return this.productsRepository.findOne({ where: { code } });
   }
   getProducts(skip: number, take: number): Promise<ProductModel[]> {
-    throw new Error("Method not implemented.");
+    return this.productsRepository.find({ skip, take });
   }
 }
