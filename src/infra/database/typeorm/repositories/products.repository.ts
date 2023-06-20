@@ -1,11 +1,11 @@
 import { BaseRepository } from "src/infra/database/typeorm/repositories/base.repository";
 import { InjectEntityManager, InjectRepository } from "@nestjs/typeorm";
 import { Injectable } from "@nestjs/common";
-import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products-repository.interface";
 import { ProductModel } from "src/domain/models/product.model";
 import { ProductEntity } from "../entities/product.entity";
 import { EntityManager, EntityTarget } from "typeorm";
 import { FilesManagerEntity } from "../entities/files.entity";
+import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products.repository.interface";
 
 @Injectable()
 export class ProductsRepository implements ProductsRepositoryInterface {

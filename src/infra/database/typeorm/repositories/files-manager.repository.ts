@@ -1,9 +1,9 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { FilesManagerModel } from "src/domain/models/files-manager.model";
-import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager-repository.interface";
 import { FilesManagerEntity } from "../entities/files.entity";
 import { Injectable } from "@nestjs/common";
 import { BaseRepository } from "./base.repository";
+import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager.repository.interface";
 
 @Injectable()
 export class FilesManagerRepository implements FilesManagerRepositoryInterface {
