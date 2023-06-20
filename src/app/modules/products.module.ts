@@ -8,10 +8,15 @@ import { OpenFoodFactService } from "src/infra/http/services/openfoodfacts.servi
 import { HttpModule } from "@nestjs/axios";
 import { FilesManagerRepository } from "src/infra/database/typeorm/repositories/files-manager.repository";
 import { FilesManagerEntity } from "src/infra/database/typeorm/entities/files.entity";
+import { JobPerformanceEntity } from "src/infra/database/typeorm/entities/job-performace.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductEntity, FilesManagerEntity]),
+    TypeOrmModule.forFeature([
+      ProductEntity,
+      FilesManagerEntity,
+      JobPerformanceEntity,
+    ]),
     HttpModule,
   ],
   controllers: [ProductsController],
