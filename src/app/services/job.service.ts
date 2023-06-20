@@ -5,9 +5,15 @@ import { OpenFoodFactInterface } from "src/infra/http/interfaces/openfoodfacts.i
 import * as zlib from "zlib";
 import * as fs from "fs";
 import * as readline from "readline";
-import { Readable } from "stream";
 import { handleProducts } from "src/infra/http/adapters/products.adapter";
 import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager-repository.interface";
+
+import { ProductModel } from "src/domain/models/product.model";
+import {
+  checkActualDateItsBiggerThanDateToPauseProcess,
+  generateJsonFileFromBuffer,
+  managerFileJob,
+} from "src/utils/job.utils";
 
 @Injectable()
 export class JobService {
@@ -20,86 +26,77 @@ export class JobService {
     private filesManagerRepository: FilesManagerRepositoryInterface
   ) {}
 
-  @Cron("*/5 * * * * *")
+  @Cron("* * */1 * * *")
   async init() {
+    if (!checkActualDateItsBiggerThanDateToPauseProcess()) return;
+
+    let memoryState = Number(process.env.MEMORY_STATE);
     const availableFiles =
       await this.openFoodFactService.getAvailableFileNames();
-    const filename = availableFiles[0];
-    const data = await this.openFoodFactService.getFile(filename);
-    const decompressedBuffer = zlib.unzipSync(data);
-    filename.replace(".gz", "");
-    const pathToSaveReducedFile = `files/filesToProcess/${filename}`;
-    const fileToProcess = pathToSaveReducedFile;
-    await this.bufferToJson(decompressedBuffer, `files/${filename}`);
-    let startLine = 1;
-    let endLine = 0;
+    const availableFilesSplited = String(availableFiles).split("\n");
+    const filesToProcess = availableFilesSplited.filter(Boolean);
+    const job = managerFileJob(filesToProcess, memoryState);
 
-    const fileManager = await this.filesManagerRepository.getByFilename(
-      filename
-    );
-
-    if (fileManager) {
-      startLine = fileManager.state;
-      endLine = startLine + 100;
-    }
-
-    await this.writeFilesToProcess(
-      filename,
-      `files/filesToProcess/${filename}`,
-      startLine,
-      endLine
-    );
-
-    return handleProducts(await this.getFilesToProcess(fileToProcess));
-  }
-
-  bufferToJson(buffer: Buffer, localToSave: string) {
-    return new Promise((resolve, reject) => {
-      let offset = 0;
-
-      fs.writeFileSync(localToSave, "");
-      const writableStream = fs.createWriteStream(localToSave);
-      const chunks = [];
-
-      const readableStream = new Readable({
-        highWaterMark: 1024,
-        read(size) {
-          const chunk = buffer.slice(offset, offset + size);
-          offset += chunk.length;
-          this.push(chunk.length > 0 ? chunk : null);
-        },
-        encoding: "utf-8",
-      });
-
-      readableStream.on("data", (chunk) => {
-        writableStream.write(chunk);
-      });
-
-      readableStream.on("end", () => {
-        writableStream.end();
-        resolve(chunks);
-      });
-
-      readableStream.on("error", (err) => {
-        reject(err);
-      });
+    if (job === "pause") return;
+    await this.process(job).finally(() => {
+      memoryState++;
+      process.env.MEMORY_STATE = String(memoryState);
+      console.log("processado");
     });
   }
 
-  writeFilesToProcess(
-    fileToReduce: string,
-    pathToSaveReducedFile: string,
+  async process(filename: string) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await this.openFoodFactService.getFile(filename);
+        const decompressedBuffer = zlib.unzipSync(data);
+        filename = filename.replace(".gz", "");
+        await generateJsonFileFromBuffer(decompressedBuffer, filename);
+        await this.insertProducts(filename);
+        resolve(`100 Registros importados do arquivo:${filename}`);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async insertProducts(filename: string) {
+    try {
+      let startLine = 0;
+      let endLine = 100;
+      const fileManager = await this.filesManagerRepository.getByFilename(
+        filename
+      );
+      if (!fileManager) {
+        await this.filesManagerRepository.create(filename);
+      } else {
+        startLine = fileManager.state;
+        endLine = startLine + 100;
+      }
+
+      const products = await this.getProductsToProcess(
+        filename,
+        startLine,
+        endLine
+      );
+
+      await this.productsRepository.insertProducts(products, filename, endLine);
+      return products;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  getProductsToProcess(
+    filename: string,
     startLine: number,
     endLine: number
-  ) {
+  ): Promise<ProductModel[]> {
     return new Promise((resolve) => {
-      fs.writeFileSync(pathToSaveReducedFile, "");
-
-      const lines = [];
+      const products = [];
       let actualLine = 0;
 
-      const writableStream = fs.createWriteStream(pathToSaveReducedFile);
-      const readStream = fs.createReadStream(fileToReduce);
+      const readStream = fs.createReadStream(filename);
       const readLine = readline.createInterface({
         input: readStream,
         crlfDelay: Infinity,
@@ -107,36 +104,15 @@ export class JobService {
 
       readLine.on("line", (line) => {
         if (actualLine >= startLine && actualLine < endLine) {
-          lines.push(line);
-          writableStream.write(`${line}\n`);
+          products.push(JSON.parse(line));
         }
         actualLine++;
       });
 
       readLine.on("close", () => {
-        writableStream.end();
         readLine.close();
-        resolve(lines);
-      });
-    });
-  }
-
-  getFilesToProcess(filePathToProcess: string) {
-    return new Promise((resolve) => {
-      const json = [];
-      const readStream = fs.createReadStream(filePathToProcess);
-      const readLine = readline.createInterface({
-        input: readStream,
-        crlfDelay: Infinity,
-      });
-
-      readLine.on("line", (line) => {
-        json.push(JSON.parse(line));
-      });
-
-      readLine.on("close", () => {
-        readLine.close();
-        resolve(json);
+        handleProducts(products);
+        resolve(handleProducts(products));
       });
     });
   }

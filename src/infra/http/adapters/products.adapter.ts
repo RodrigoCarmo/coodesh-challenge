@@ -1,29 +1,35 @@
-const handleProducts = (products) => {
+import { ProductModel, StatusEnum } from "src/domain/models/product.model";
+import { ProductEntity } from "src/infra/database/typeorm/entities/product.entity";
+
+const handleProducts = (products: ProductModel[]) => {
   const productsList = [];
-  products.forEach((product) => {
-    productsList.push({
-      code: product.code,
-      url: product.url,
-      creator: product.creator,
-      created_t: product.created_t,
-      last_modified_t: product.last_modified_t,
-      product_name: product.product_name,
-      quantity: product.quantity,
-      brands: product.brands,
-      categories: product.categories,
-      labels: product.labels,
-      cities: product.cities,
-      purchase_places: product.purchase_places,
-      stores: product.stores,
-      ingredients_text: product.ingredients_text,
-      traces: product.traces,
-      serving_size: product.serving_size,
-      serving_quantity: product.serving_quantity,
-      nutriscore_score: product.nutriscore_score,
-      nutriscore_grade: product.nutriscore_grade,
-      main_category: product.main_category,
-      image_url: product.image_url,
-    });
+
+  products.forEach((item: ProductModel) => {
+    const product = new ProductEntity();
+    product.code = item.code.replace(/[^0-9]/g, "");
+    product.url = item.url;
+    product.status = StatusEnum.published;
+    product.creator = item.creator;
+    product.created_t = item.created_t;
+    product.last_modified_t = item.last_modified_t;
+    product.product_name = item.product_name;
+    product.quantity = item.quantity;
+    product.brands = item.brands;
+    product.categories = item.categories;
+    product.labels = item.labels;
+    product.cities = item.cities;
+    product.purchase_places = item.purchase_places;
+    product.stores = item.stores;
+    product.ingredients_text = item.ingredients_text;
+    product.traces = item.traces;
+    product.serving_size = item.serving_size;
+    product.serving_quantity = item.serving_quantity;
+    product.nutriscore_score = item.nutriscore_score;
+    product.nutriscore_grade = item.nutriscore_grade;
+    product.main_category = item.main_category;
+    product.image_url = item.image_url;
+
+    productsList.push(product);
   });
 
   return productsList;

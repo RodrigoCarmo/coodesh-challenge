@@ -1,4 +1,4 @@
 export interface OpenFoodFactInterface {
-  getAvailableFileNames(): Promise<string[]>;
+  getAvailableFileNames(): Promise<any>;
   getFile(filename: string): Promise<any>;
 }

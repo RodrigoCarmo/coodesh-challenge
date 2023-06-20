@@ -17,17 +17,9 @@ export class FilesManagerRepository implements FilesManagerRepositoryInterface {
       where: { file_name: filename },
     });
   }
-  async alterState(filename: string, state: number): Promise<void> {
-    await this.filesManagerRepository
-      .createQueryBuilder()
-      .update()
-      .set({ state: state })
-      .where("filename = :filename", { filename })
-      .execute();
-  }
   async create(filename: string): Promise<void> {
     await this.filesManagerRepository.save(
-      this.filesManagerRepository.create({ file_name: filename, state: 1 })
+      this.filesManagerRepository.create({ file_name: filename, state: 0 })
     );
   }
 }

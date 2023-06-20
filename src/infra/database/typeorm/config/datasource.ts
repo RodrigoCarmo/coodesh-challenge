@@ -3,6 +3,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 
 import { NestFactory } from "@nestjs/core";
 import { ProductEntity } from "../entities/product.entity";
+import { FilesManagerEntity } from "../entities/files.entity";
 
 export const dataSourceConfig = (
   configService: ConfigService
@@ -13,7 +14,7 @@ export const dataSourceConfig = (
   username: configService.get("USERNAME_PG"),
   password: configService.get("PASSWORD_PG"),
   database: configService.get("DATABASE_PG"),
-  entities: [ProductEntity],
+  entities: [ProductEntity, FilesManagerEntity],
   migrations: ["dist/infra/database/typeorm/migrations/*.js"],
 });
 

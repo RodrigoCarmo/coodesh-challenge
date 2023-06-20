@@ -1,74 +1,74 @@
 import { ProductModel, StatusEnum } from "src/domain/models/product.model";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
 
 @Entity("products")
 export class ProductEntity implements ProductModel {
   @PrimaryColumn()
-  code: number;
+  code: string;
 
   @Column({ enum: StatusEnum })
   status: StatusEnum;
 
-  @Column()
+  @CreateDateColumn()
   imported_t: Date;
 
-  @Column()
+  @Column({ nullable: true })
   url: string;
 
-  @Column()
+  @Column({ nullable: true })
   creator: string;
 
-  @Column()
-  created_t: number;
+  @Column({ nullable: true })
+  created_t: string;
 
-  @Column()
-  last_modified_t: number;
+  @Column({ nullable: true })
+  last_modified_t: string;
 
-  @Column()
+  @Column({ nullable: true })
   product_name: string;
 
-  @Column()
+  @Column({ nullable: true })
   quantity: string;
 
-  @Column()
+  @Column({ nullable: true })
   brands: string;
 
-  @Column()
+  @Column({ nullable: true })
   categories: string;
 
-  @Column()
+  @Column({ nullable: true })
   labels: string;
 
-  @Column()
+  @Column({ nullable: true })
   cities: string;
 
-  @Column()
+  @Column({ nullable: true })
   purchase_places: string;
 
-  @Column()
+  @Column({ nullable: true })
   stores: string;
 
-  @Column()
+  @Column({ nullable: true })
   ingredients_text: string;
 
-  @Column()
+  @Column({ nullable: true })
   traces: string;
 
-  @Column()
+  @Column({ nullable: true })
   serving_size: string;
 
-  @Column()
-  serving_quantity: number;
+  @Column({ nullable: true })
+  serving_quantity: string;
 
-  @Column()
-  nutriscore_score: number;
+  @Column({ nullable: true })
+  nutriscore_score: string;
 
-  @Column()
+  @Column({ nullable: true })
   nutriscore_grade: string;
 
-  @Column()
+  @Column({ nullable: true })
   main_category: string;
 
-  @Column()
+  @Column({ nullable: true })
   image_url: string;
 }
