@@ -15,7 +15,8 @@ Esta api será responsável por realizar buscas diariamente na Open Food Facts e
 - Fiz a implementação 100% funcional do parse e formatação dos dados para importá-los no banco de dados
 - Realizei umas adaptações no funcionamento do Cron Job, isto porquê há arquivos muito grandes para busca e inserção. A princípio, o endpoint que utilizamos para buscar os arquivos possui uma limitação para stream dos dados. Essa limitação gera um 403 e demora um pouco a funcionar novamente. Assim, implementei uma espécie de estado para o job, armazenando um contador para o controle de quantos arquivos serão solicitados por dia afim de manter os 100 produtos propostos no desafio. Também realizei um controle pela data após exceder o limite de arquivos lidos no dia, assim, mesmo que o cron rode em segundo plano, ele não irá realizar nenhuma tarefa e manterá os 100 produtos por arquivo ao dia. Obs: o Cron irá disparar a cada uma hora podia, porém, irá realizar apenas as importações necessárias no período.
 - Adicionei uma tabela para controlar em qual linha(estado) se encontra o arquivo para o processamento. Vale ressaltar que a busca do arquivo é armazenada em disco, porquê é imprevisível saber uma determinada linha de um buffer e assim ficaria difícil de manipular os chunks sem gerar alguma má formatação. E o nosso arquivo é muito grande para manipulá-lo em memória, o que acaba derrubando a aplicação.
-
+- Implementei uma tabela que irá armazenar a performance da execução dos meus jobs.
+- Estou implementando a rota de health check para exibir o estado do banco de dados e o último registro de performance do job. Amanhã irei finalizar esta etapa e fazer os ajustes finais para a entrega do desafio.
 
 
 
