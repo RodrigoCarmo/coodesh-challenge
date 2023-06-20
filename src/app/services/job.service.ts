@@ -1,12 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
-import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products-repository.interface";
 import { OpenFoodFactInterface } from "src/infra/http/interfaces/openfoodfacts.interface";
 import * as zlib from "zlib";
 import * as fs from "fs";
 import * as readline from "readline";
 import { handleProducts } from "src/infra/http/adapters/products.adapter";
-import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager-repository.interface";
 
 import { ProductModel } from "src/domain/models/product.model";
 import {
@@ -14,6 +12,9 @@ import {
   generateJsonFileFromBuffer,
   managerFileJob,
 } from "src/utils/job.utils";
+import { performanceResult } from "src/utils/performance";
+import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products.repository.interface";
+import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager.repository.interface";
 
 @Injectable()
 export class JobService {
@@ -26,23 +27,25 @@ export class JobService {
     private filesManagerRepository: FilesManagerRepositoryInterface
   ) {}
 
-  @Cron("* * */1 * * *")
+  @Cron("0 */1 * * * *")
   async init() {
     if (!checkActualDateItsBiggerThanDateToPauseProcess()) return;
 
     let memoryState = Number(process.env.MEMORY_STATE);
     const availableFiles =
       await this.openFoodFactService.getAvailableFileNames();
-    const availableFilesSplited = String(availableFiles).split("\n");
-    const filesToProcess = availableFilesSplited.filter(Boolean);
+    const filesToProcess = String(availableFiles).split("\n").filter(Boolean);
     const job = managerFileJob(filesToProcess, memoryState);
 
     if (job === "pause") return;
+    const start = performance.now();
     await this.process(job).finally(() => {
       memoryState++;
       process.env.MEMORY_STATE = String(memoryState);
       console.log("processado");
     });
+    const end = performance.now();
+    console.log(performanceResult(start, end));
   }
 
   async process(filename: string) {
