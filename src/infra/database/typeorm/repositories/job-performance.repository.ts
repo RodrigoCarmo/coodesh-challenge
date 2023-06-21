@@ -20,6 +20,9 @@ export class JobPerformanceRepository
     );
   }
   getLastJobPerformance(): Promise<JobPerformanceModel> {
-    return this.jobPerformanceRepository.findOne({ order: { id: "DESC" } });
+    return this.jobPerformanceRepository
+      .createQueryBuilder()
+      .orderBy("id", "DESC")
+      .getOne();
   }
 }

@@ -9,9 +9,12 @@ import { ProductsRepository } from "src/infra/database/typeorm/repositories/prod
 import { OpenFoodFactService } from "src/infra/http/services/openfoodfacts.service";
 import { HttpModule } from "@nestjs/axios";
 import { FilesManagerRepository } from "src/infra/database/typeorm/repositories/files-manager.repository";
+import { HealthModule } from "./modules/health.module";
+import { JobPerformanceRepository } from "src/infra/database/typeorm/repositories/job-performance.repository";
 
 @Module({
   imports: [
+    HealthModule,
     HttpModule,
     ScheduleModule.forRoot(),
     ProductsModule,
@@ -29,6 +32,10 @@ import { FilesManagerRepository } from "src/infra/database/typeorm/repositories/
     { provide: "PRODUCT_REPOSITORY", useClass: ProductsRepository },
     { provide: "OPEN_FOOD_FACT_SERVICE", useClass: OpenFoodFactService },
     { provide: "FILES_MANAGER_REPOSITORY", useClass: FilesManagerRepository },
+    {
+      provide: "JOB_PERFORMANCE_REPOSITORY",
+      useClass: JobPerformanceRepository,
+    },
   ],
 })
 export class AppModule {}

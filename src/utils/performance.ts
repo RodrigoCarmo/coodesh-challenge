@@ -21,10 +21,10 @@ export function performanceResult(start: number, end: number) {
   const memoryUsage = process.memoryUsage().heapUsed;
 
   return {
-    totalDuration: `${totalDuration.toFixed(2)} ms`,
-    cpuUsageAverage: `${(
+    total_duration: `${totalDuration.toFixed(2)} ms`,
+    cpu_usage_average: `${(
       Math.round(Number(cpuUsageAverage.toFixed(2))) / 10000
     ).toFixed(2)}%`,
-    memoryUsage: formatBytes(memoryUsage),
+    memory_usage: formatBytes(memoryUsage),
   };
 }
