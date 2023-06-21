@@ -16,6 +16,7 @@ import { performanceResult } from "src/utils/performance";
 import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products.repository.interface";
 import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager.repository.interface";
 import { JobPerformanceRepositoryInterface } from "src/domain/repositories/interfaces/job-performance.repository.interface";
+import { JobProcessStatusEnum } from "src/domain/models/job-performance.model";
 
 @Injectable()
 export class JobService {
@@ -31,7 +32,7 @@ export class JobService {
     private jobPerformanceRepository: JobPerformanceRepositoryInterface
   ) {}
 
-  @Cron("*/5 * * * * *")
+  @Cron("*/45 * * * * *")
   async init() {
     if (!checkActualDateItsBiggerThanDateToPauseProcess()) return;
     // memoryState used to control the processing of each file once a day
@@ -41,22 +42,30 @@ export class JobService {
     const filesToProcess = String(availableFiles).split("\n").filter(Boolean);
     const job = managerFileJob(filesToProcess, memoryState);
 
-    if (job === "pause") return;
+    if (job === JobProcessStatusEnum.Pause || !job) return;
     this.logger.verbose(`Importing 100 products from the file: ${job}`);
     const start = performance.now();
-    await this.process(job).finally(() => {
-      memoryState++;
-      process.env.MEMORY_STATE = String(memoryState);
-    });
-    const end = performance.now();
-    const pfr = performanceResult(start, end);
-    this.logger.verbose(`File processed with success \n
-    Performance:
-    total_duration: ${pfr.total_duration} 
-    cpu_usage_average: ${pfr.cpu_usage_average}
-    memory_usage: ${pfr.memory_usage} 
-    `);
-    await this.jobPerformanceRepository.create(pfr);
+    let jobProcessStatus: JobProcessStatusEnum;
+    await this.process(job)
+      .then(() => {
+        jobProcessStatus = JobProcessStatusEnum.Success;
+      })
+      .catch(() => {
+        jobProcessStatus = JobProcessStatusEnum.Error;
+      })
+      .finally(async () => {
+        memoryState++;
+        process.env.MEMORY_STATE = String(memoryState);
+        const end = performance.now();
+        const pfr = await performanceResult(start, end);
+        this.logger.verbose(`File processed with ${jobProcessStatus} \n
+      Performance:
+      total_duration: ${pfr.total_duration} 
+      cpu_usage_average: ${pfr.cpu_usage_average}
+      memory_usage: ${pfr.memory_usage} 
+      `);
+        await this.jobPerformanceRepository.create(pfr, jobProcessStatus);
+      });
   }
 
   async process(filename: string) {

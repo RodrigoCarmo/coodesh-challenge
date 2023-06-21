@@ -1,4 +1,7 @@
-import { JobPerformanceModel } from "src/domain/models/job-performance.model";
+import {
+  JobPerformanceModel,
+  JobProcessStatusEnum,
+} from "src/domain/models/job-performance.model";
 import {
   Column,
   CreateDateColumn,
@@ -22,4 +25,7 @@ export class JobPerformanceEntity implements JobPerformanceModel {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ enum: JobProcessStatusEnum })
+  status: JobProcessStatusEnum;
 }
