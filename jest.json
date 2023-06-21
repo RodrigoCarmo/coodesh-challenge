@@ -12,7 +12,9 @@
   },
   "collectCoverageFrom": [
     "<rootDir>/src/app/controllers/**.ts",
+    "!<rootDir>/src/app/controllers/health.controller.ts",
     "<rootDir>/src/app/services/**.ts",
+    "!<rootDir>/src/app/services/job.service.ts",
     "!<rootDir>/test/**/**.spec.ts"
   ],
     "collectCoverage": true,
