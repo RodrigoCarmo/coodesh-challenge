@@ -1,4 +1,15 @@
-import * as os from "os";
+import * as os from "os-utils";
+
+export async function getCpuUsage(totalDuration): Promise<number> {
+  return new Promise((resolve) => {
+    os.cpuUsage((cpuUsage) => {
+      const cpuUsageAverage = (cpuUsage * 100) / os.cpuCount();
+      const cpuUsageAveragePerDuration =
+        cpuUsageAverage / (totalDuration / 1000);
+      resolve(cpuUsageAveragePerDuration);
+    });
+  });
+}
 
 function formatBytes(bytes: number) {
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -10,21 +21,16 @@ function formatBytes(bytes: number) {
   return `${bytes.toFixed(2)} ${units[index]}`;
 }
 
-export function performanceResult(start: number, end: number) {
+export async function performanceResult(start: number, end: number) {
   const totalDuration = end - start;
-  const cpuUsage = os
-    .cpus()
-    .reduce((total, cpu) => total + cpu.times.user + cpu.times.sys, 0);
-  const cpuUsageAverage =
-    ((cpuUsage / (totalDuration / 1000)) * 100) / os.cpus().length;
+  const cpuUsage = await getCpuUsage(totalDuration);
+  const cpuUsageAverage = (cpuUsage / totalDuration) * 1000;
 
   const memoryUsage = process.memoryUsage().heapUsed;
 
   return {
     total_duration: `${totalDuration.toFixed(2)} ms`,
-    cpu_usage_average: `${(
-      Math.round(Number(cpuUsageAverage.toFixed(2))) / 10000
-    ).toFixed(2)}%`,
+    cpu_usage_average: `${(cpuUsageAverage * 100).toFixed(2)}%`,
     memory_usage: formatBytes(memoryUsage),
   };
 }
