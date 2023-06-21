@@ -14,6 +14,7 @@ import { JobPerformanceRepository } from "src/infra/database/typeorm/repositorie
 import { RedirectMiddleware } from "src/infra/http/middlewares/redirect.middleware";
 import { RateLimiterGuard, RateLimiterModule } from "nestjs-rate-limiter";
 import { APP_GUARD } from "@nestjs/core";
+import { ApiKeyMiddleware } from "src/infra/http/middlewares/api-key.middleware";
 
 @Module({
   imports: [
@@ -49,5 +50,6 @@ import { APP_GUARD } from "@nestjs/core";
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RedirectMiddleware);
+    consumer.apply(ApiKeyMiddleware).forRoutes("*");
   }
 }
