@@ -14,15 +14,28 @@ import { ProductModel } from "src/domain/models/product.model";
 import {
   GetByCodeDto,
   GetProductsDto,
+  ProductResponseErrorDto,
+  ProductResponseOkDto,
   UpdateProductDto,
 } from "../dto/products.dto";
 import { HttpExceptionFilter } from "src/utils/http-exception.filter";
 import { RateLimit } from "nestjs-rate-limiter";
+import {
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiResponse,
+} from "@nestjs/swagger";
 
 @Controller("products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @ApiOkResponse({ type: ProductResponseOkDto })
+  @ApiNotFoundResponse({ type: ProductResponseErrorDto })
+  @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
+  @ApiParam({ name: "code" })
   @RateLimit({ points: 10, duration: 60 })
   @Get(":code")
   @HttpCode(200)
@@ -31,6 +44,9 @@ export class ProductsController {
     return this.productsService.getBycode(getByCodeDto.code);
   }
 
+  @ApiOkResponse({ type: ProductResponseOkDto, isArray: true })
+  @ApiNotFoundResponse({ type: ProductResponseErrorDto })
+  @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
   @RateLimit({ points: 10, duration: 60 })
   @Get("")
   @HttpCode(200)
@@ -42,6 +58,9 @@ export class ProductsController {
   }
 
   @RateLimit({ points: 10, duration: 60 })
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ProductResponseErrorDto })
+  @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
   @Put(":code")
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
@@ -54,6 +73,11 @@ export class ProductsController {
       updateProductDto
     );
   }
+
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ type: ProductResponseErrorDto })
+  @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
+  @ApiResponse({ status: 304 })
   @RateLimit({ points: 10, duration: 60 })
   @Delete(":code")
   @HttpCode(200)
