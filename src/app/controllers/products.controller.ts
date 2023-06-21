@@ -17,11 +17,13 @@ import {
   UpdateProductDto,
 } from "../dto/products.dto";
 import { HttpExceptionFilter } from "src/utils/http-exception.filter";
+import { RateLimit } from "nestjs-rate-limiter";
 
 @Controller("products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @RateLimit({ points: 10, duration: 60 })
   @Get(":code")
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
@@ -29,6 +31,7 @@ export class ProductsController {
     return this.productsService.getBycode(getByCodeDto.code);
   }
 
+  @RateLimit({ points: 10, duration: 60 })
   @Get("")
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
@@ -38,6 +41,7 @@ export class ProductsController {
     return this.productsService.getProducts(getProductsDto);
   }
 
+  @RateLimit({ points: 10, duration: 60 })
   @Put(":code")
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
@@ -50,7 +54,7 @@ export class ProductsController {
       updateProductDto
     );
   }
-
+  @RateLimit({ points: 10, duration: 60 })
   @Delete(":code")
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
