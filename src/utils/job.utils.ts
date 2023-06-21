@@ -1,5 +1,6 @@
 import { Readable } from "stream";
 import * as fs from "fs";
+import { JobProcessStatusEnum } from "src/domain/models/job-performance.model";
 
 export async function generateJsonFileFromBuffer(
   buffer: Buffer,
@@ -50,7 +51,7 @@ export function setDateToPauseJob() {
   process.env.DATE_TO_PAUSE_JOB = `${dateToPauseProcess.getFullYear()}-${
     dateToPauseProcess.getMonth
   }-${dateToPauseProcess.getDate}`;
-  return "pause";
+  return JobProcessStatusEnum.Pause;
 }
 
 export function managerFileJob(filesToProcess: string[], count: number) {

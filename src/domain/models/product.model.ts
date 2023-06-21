@@ -1,5 +1,3 @@
-import { ApiProperty } from "@nestjs/swagger";
-
 export enum StatusEnum {
   trash = "trash",
   draft = "draft",
