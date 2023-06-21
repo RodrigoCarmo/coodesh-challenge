@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { OpenFoodFactInterface } from "src/infra/http/interfaces/openfoodfacts.interface";
 import * as zlib from "zlib";
@@ -15,22 +15,26 @@ import {
 import { performanceResult } from "src/utils/performance";
 import { ProductsRepositoryInterface } from "src/domain/repositories/interfaces/products.repository.interface";
 import { FilesManagerRepositoryInterface } from "src/domain/repositories/interfaces/files-manager.repository.interface";
+import { JobPerformanceRepositoryInterface } from "src/domain/repositories/interfaces/job-performance.repository.interface";
 
 @Injectable()
 export class JobService {
+  logger = new Logger("JobLog");
   constructor(
     @Inject("PRODUCT_REPOSITORY")
     private readonly productsRepository: ProductsRepositoryInterface,
     @Inject("OPEN_FOOD_FACT_SERVICE")
     private readonly openFoodFactService: OpenFoodFactInterface,
     @Inject("FILES_MANAGER_REPOSITORY")
-    private filesManagerRepository: FilesManagerRepositoryInterface
+    private filesManagerRepository: FilesManagerRepositoryInterface,
+    @Inject("JOB_PERFORMANCE_REPOSITORY")
+    private jobPerformanceRepository: JobPerformanceRepositoryInterface
   ) {}
 
-  @Cron("0 */1 * * * *")
+  @Cron("*/5 * * * * *")
   async init() {
     if (!checkActualDateItsBiggerThanDateToPauseProcess()) return;
-
+    // memoryState used to control the processing of each file once a day
     let memoryState = Number(process.env.MEMORY_STATE);
     const availableFiles =
       await this.openFoodFactService.getAvailableFileNames();
@@ -38,14 +42,21 @@ export class JobService {
     const job = managerFileJob(filesToProcess, memoryState);
 
     if (job === "pause") return;
+    this.logger.verbose(`Importing 100 products from the file: ${job}`);
     const start = performance.now();
     await this.process(job).finally(() => {
       memoryState++;
       process.env.MEMORY_STATE = String(memoryState);
-      console.log("processado");
     });
     const end = performance.now();
-    console.log(performanceResult(start, end));
+    const pfr = performanceResult(start, end);
+    this.logger.verbose(`File processed with success \n
+    Performance:
+    total_duration: ${pfr.total_duration} 
+    cpu_usage_average: ${pfr.cpu_usage_average}
+    memory_usage: ${pfr.memory_usage} 
+    `);
+    await this.jobPerformanceRepository.create(pfr);
   }
 
   async process(filename: string) {
@@ -56,9 +67,16 @@ export class JobService {
         filename = filename.replace(".gz", "");
         await generateJsonFileFromBuffer(decompressedBuffer, filename);
         await this.insertProducts(filename);
-        resolve(`100 Registros importados do arquivo:${filename}`);
+        fs.unlink(filename, (err) => {
+          if (err) this.logger.warn(`Unable to remove file: ${filename}`);
+          this.logger.verbose(`File removed: ${filename}`);
+        });
+        resolve("");
       } catch (error) {
         reject(error);
+        this.logger.error(
+          `An error occurred when trying to import the products from the file ${filename}, rollback operation performed `
+        );
       }
     });
   }
