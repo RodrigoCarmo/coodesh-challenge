@@ -9,6 +9,8 @@ import { HttpModule } from "@nestjs/axios";
 import { FilesManagerRepository } from "src/infra/database/typeorm/repositories/files-manager.repository";
 import { FilesManagerEntity } from "src/infra/database/typeorm/entities/files.entity";
 import { JobPerformanceEntity } from "src/infra/database/typeorm/entities/job-performace.entity";
+import { JobPerformanceHealthIndicator } from "src/utils/performance.health";
+import { JobPerformanceRepository } from "src/infra/database/typeorm/repositories/job-performance.repository";
 
 @Module({
   imports: [
@@ -21,10 +23,15 @@ import { JobPerformanceEntity } from "src/infra/database/typeorm/entities/job-pe
   ],
   controllers: [ProductsController],
   providers: [
+    JobPerformanceHealthIndicator,
     ProductsService,
     { provide: "PRODUCT_REPOSITORY", useClass: ProductsRepository },
     { provide: "OPEN_FOOD_FACT_SERVICE", useClass: OpenFoodFactService },
     { provide: "FILES_MANAGER_REPOSITORY", useClass: FilesManagerRepository },
+    {
+      provide: "JOB_PERFORMANCE_REPOSITORY",
+      useClass: JobPerformanceRepository,
+    },
   ],
   exports: [TypeOrmModule],
 })
