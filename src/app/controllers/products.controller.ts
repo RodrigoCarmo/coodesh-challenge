@@ -21,17 +21,21 @@ import {
 import { HttpExceptionFilter } from "src/utils/http-exception.filter";
 import { RateLimit } from "nestjs-rate-limiter";
 import {
+  ApiHeader,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiParam,
   ApiResponse,
+  ApiTags,
 } from "@nestjs/swagger";
 
+@ApiTags("Products")
 @Controller("products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @ApiHeader({ name: "x-api-key", required: true })
   @ApiOkResponse({ type: ProductResponseOkDto })
   @ApiNotFoundResponse({ type: ProductResponseErrorDto })
   @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
@@ -44,6 +48,7 @@ export class ProductsController {
     return this.productsService.getBycode(getByCodeDto.code);
   }
 
+  @ApiHeader({ name: "x-api-key", required: true })
   @ApiOkResponse({ type: ProductResponseOkDto, isArray: true })
   @ApiNotFoundResponse({ type: ProductResponseErrorDto })
   @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
@@ -57,6 +62,7 @@ export class ProductsController {
     return this.productsService.getProducts(getProductsDto);
   }
 
+  @ApiHeader({ name: "x-api-key", required: true })
   @RateLimit({ points: 10, duration: 60 })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ProductResponseErrorDto })
@@ -74,6 +80,7 @@ export class ProductsController {
     );
   }
 
+  @ApiHeader({ name: "x-api-key", required: true })
   @ApiOkResponse()
   @ApiNotFoundResponse({ type: ProductResponseErrorDto })
   @ApiInternalServerErrorResponse({ type: ProductResponseErrorDto })
