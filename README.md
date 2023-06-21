@@ -18,6 +18,13 @@ Esta api será responsável por realizar buscas diariamente na Open Food Facts e
 - Implementei uma tabela que irá armazenar a performance da execução dos meus jobs.
 - Estou implementando a rota de health check para exibir o estado do banco de dados e o último registro de performance do job. Amanhã irei finalizar esta etapa e fazer os ajustes finais para a entrega do desafio.
 
+3º dia:
+- Implementei as rotas de GET, PUT e DELETE
+- Adicionei alguns logs para a execução do job
+- Implementei o health check com o ping para o banco de dados e a busca das últimas informações de performance do job
+- Fiz um teste na api de modo prático e está tudo ok
+- Realizei algumas refatorações
+
 
 
 
