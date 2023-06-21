@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { dataSourceConfig } from "src/infra/database/typeorm/config/datasource";
@@ -11,9 +11,13 @@ import { HttpModule } from "@nestjs/axios";
 import { FilesManagerRepository } from "src/infra/database/typeorm/repositories/files-manager.repository";
 import { HealthModule } from "./modules/health.module";
 import { JobPerformanceRepository } from "src/infra/database/typeorm/repositories/job-performance.repository";
+import { RedirectMiddleware } from "src/infra/http/middlewares/redirect.middleware";
+import { RateLimiterGuard, RateLimiterModule } from "nestjs-rate-limiter";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
   imports: [
+    RateLimiterModule.register(),
     HealthModule,
     HttpModule,
     ScheduleModule.forRoot(),
@@ -36,6 +40,14 @@ import { JobPerformanceRepository } from "src/infra/database/typeorm/repositorie
       provide: "JOB_PERFORMANCE_REPOSITORY",
       useClass: JobPerformanceRepository,
     },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RedirectMiddleware);
+  }
+}
