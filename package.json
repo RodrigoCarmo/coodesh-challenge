@@ -20,9 +20,8 @@
     "typeorm": "npm run build && npx typeorm -d dist/infra/database/typeorm/config/datasource.js",
     "migration:generate": "cross-env npm run typeorm -- migration:generate src/infra/database/typeorm/migrations/$npm_config_name",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert",
-    "docker-compose-up-debug": "docker-compose -f docker-compose.debug.yaml up",
-    "docker-compose-down-debug": "docker-compose -f docker-compose.debug.yaml down"
+    "migration:revert": "npm run typeorm -- migration:revert"
+
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.0",
