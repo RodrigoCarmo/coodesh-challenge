@@ -17,6 +17,7 @@ export const dataSourceConfig = (
   database: configService.get("DATABASE_PG"),
   entities: [ProductEntity, FilesManagerEntity, JobPerformanceEntity],
   migrations: ["dist/infra/database/typeorm/migrations/*.js"],
+  migrationsRun: true,
 });
 
 async function dataSourceOptions(): Promise<DataSourceOptions> {
