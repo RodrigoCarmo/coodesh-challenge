@@ -1,5 +1,11 @@
 import { FilesManagerModel } from "src/domain/models/files-manager.model";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity("files_manager")
 export class FilesManagerEntity implements FilesManagerModel {
@@ -11,4 +17,10 @@ export class FilesManagerEntity implements FilesManagerModel {
 
   @Column()
   state: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
