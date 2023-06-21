@@ -24,6 +24,8 @@ Esta api será responsável por realizar buscas diariamente na Open Food Facts e
 - Implementei o health check com o ping para o banco de dados e a busca das últimas informações de performance do job
 - Fiz um teste na api de modo prático e está tudo ok
 - Realizei algumas refatorações
+- Adicionei um rate limiter para os endpoints de produtos e health check
+- Adicionei um middleware que redireciona as conexoes para do host para a documentação do swagger
 
 
 
