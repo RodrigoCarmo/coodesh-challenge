@@ -44,6 +44,7 @@ export function checkActualDateItsBiggerThanDateToPauseProcess() {
   );
 }
 
+//used to inform a date as a nodejs environment variable that will control whether the file process can restart
 export function setDateToPauseJob() {
   const dateToPauseProcess = new Date();
   process.env.DATE_TO_PAUSE_JOB = `${dateToPauseProcess.getFullYear()}-${
