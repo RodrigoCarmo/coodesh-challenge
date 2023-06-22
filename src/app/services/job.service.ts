@@ -32,15 +32,15 @@ export class JobService {
     private jobPerformanceRepository: JobPerformanceRepositoryInterface
   ) {}
 
-  @Cron("*/45 * * * * *")
+  @Cron("0 0 */1 * * *")
   async init() {
     if (!checkActualDateItsBiggerThanDateToPauseProcess()) return;
-    // memoryState used to control the processing of each file once a day
-    let memoryState = Number(process.env.MEMORY_STATE);
+    // jobState used to control the processing of each file once a day
+    let jobState = Number(process.env.JOB_STATE);
     const availableFiles =
       await this.openFoodFactService.getAvailableFileNames();
     const filesToProcess = String(availableFiles).split("\n").filter(Boolean);
-    const job = managerFileJob(filesToProcess, memoryState);
+    const job = managerFileJob(filesToProcess, jobState);
 
     if (job === JobProcessStatusEnum.Pause || !job) return;
     this.logger.verbose(`Importing 100 products from the file: ${job}`);
@@ -54,8 +54,8 @@ export class JobService {
         jobProcessStatus = JobProcessStatusEnum.Error;
       })
       .finally(async () => {
-        memoryState++;
-        process.env.MEMORY_STATE = String(memoryState);
+        jobState++;
+        process.env.JOB_STATE = String(jobState);
         const end = performance.now();
         const pfr = await performanceResult(start, end);
         this.logger.verbose(`File processed with ${jobProcessStatus} \n

@@ -57,7 +57,7 @@ export function setDateToPauseJob() {
 export function managerFileJob(filesToProcess: string[], count: number) {
   if (count <= filesToProcess.length) return filesToProcess[count];
   else {
-    process.env.MEMORY_STATE = String(0);
+    process.env.JOB_STATE = String(0);
     return setDateToPauseJob();
   }
 }

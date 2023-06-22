@@ -1,10 +1,10 @@
 {
   "name": "teddy-open-finance-challenge",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "version": "1.0.0",
+  "description": "Desafio para a Teddy Open Finance",
+  "author": "Rodrigo Carmo",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
