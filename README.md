@@ -2,7 +2,7 @@
 
 ## Introdução
 
-Está API faz parte do desafio proposto pela [Teddy Open Finance](https://teddydigital.io/). Irá importar produtos da API pública [Open Food Facts](https://world.openfoodfacts.org/) através de rotinas administradas com o Cron e armazená-las no banco de dados da Fitness Foods LC.
+Está API faz parte do desafio proposto pela [Coodesh](https://coodesh.com/). Irá importar produtos da API pública [Open Food Facts](https://world.openfoodfacts.org/) através de rotinas administradas com o Cron e armazená-las no banco de dados da Fitness Foods LC.
 
 [Link da apresentação](https://www.loom.com/embed/1f7822ad4aa8480eb245acb1338dd36e)
 
@@ -132,7 +132,7 @@ Pronto, agora você poderá rodar lá dentro.
 
 ## Conclusão
 
-É isso, o meu caminho neste desafio chegou ao fim, agora vamos esperar o retorno da Teddy 🙂
+É isso, o meu caminho nesee desafio chegou ao fim, agora vamos esperar o retorno da Coodesh 🙂
 
 
 
